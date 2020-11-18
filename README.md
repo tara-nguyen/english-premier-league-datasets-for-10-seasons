@@ -8,7 +8,7 @@ The English Premier League is top level of competition in English football (or s
 
 ## Datasets
 
-The repo contains 44 datasets for ten seasons of the Premier League, from the 2010/2011 season to the 2019/2020 season. The 2020/2021 season was not included because it is an ongoing season.
+The repo contains 46 datasets for ten seasons of the Premier League, from the 2010/2011 season to the 2019/2020 season. The 2020/2021 season was not included because it is an ongoing season.
 
 ### Original Datasets
 
@@ -28,7 +28,7 @@ All steps of data cleaning and wrangling were done entirely in R (see [`epldat10
 
 ### Additional datasets
 
-Forty-three other datasets were created based on the [`epl-allseasons-matchstats.csv`](epldat10seasons/epl-allseasons-matchstats.csv) dataset. They include:
+Forty-five other datasets were created based on the [`epl-allseasons-matchstats.csv`](epldat10seasons/epl-allseasons-matchstats.csv) dataset. They include:
 - 10 season-end league tables, one for each season covered by the data;
 - 10 datasets (one for each season) containing the result and number of points each team got after each game/match;
 - 10 datasets (one for each season) containing the number of goals scored and number of goals conceded by each team after each game/match; and

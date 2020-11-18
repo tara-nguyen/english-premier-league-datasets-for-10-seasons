@@ -4,7 +4,7 @@ AUTHOR: [**TARA NGUYEN**](https://www.linkedin.com/in/nguyenthuyanh/)
 
 ## Background
 
-The English Premier League is top level of competition in English football (or soccer, as Americans like to call it). It is widely regarded as one of the most competitive and is one of the most watched sports competition in the world. Each season typically lasts from mid-August to mid-May (with the exception of the 2019/2020 season, which was postponed for three months due to COVID-19). Each season 20 teams compete for the Premier League tropy, as well as for the top four spots, because the top four teams are eligible for the next season of the Champions League (one of the most pretigious football tournaments not just in Europe but also in the world).
+The English Premier League is top level of competition in English football (or soccer, as Americans like to call it). It is widely regarded as one of the most competitive and is one of the most watched sports competition in the world. Each season typically lasts from mid-August to mid-May (with the exception of the 2019/2020 season, which was postponed for three months due to COVID-19). Each season 20 teams compete for the Premier League trophy, as well as for the top four spots, because the top four teams are eligible for the next season of the Champions League (one of the most prestigious football tournaments not just in Europe but also in the world).
 
 ## Datasets
 

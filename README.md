@@ -32,11 +32,11 @@ Forty-three other datasets were created based on the [`epl-allseasons-matchstats
 - 10 season-end league tables, one for each season covered by the data;
 - 10 datasets (one for each season) containing the result and number of points each team got after each game/match;
 - 10 datasets (one for each season) containing the number of goals scored and number of goals conceded by each team after each game/match; and
-- 13 datasets containing the head-to-head match statistics across all ten seasons.
+- 15 datasets containing the head-to-head match statistics across all ten seasons.
 
 #### Note
 
-Included at the end of [`epldat10seasons_DataWrangling.R`](epldat10seasons_DataWrangling.R) is the code for 130 additional datasets containing head-to-head statistics for each of the ten seasons. The reader is free to try out the code to obtain the desired dataset(s).
+Included at the end of [`epldat10seasons_DataWrangling.R`](epldat10seasons_DataWrangling.R) is the code for 150 additional datasets containing head-to-head statistics for each of the ten seasons. The reader is free to try out the code to obtain the desired dataset(s).
 
 ## Usage Note
 

@@ -363,7 +363,8 @@ get_h2h_tab <- function(data) {
 	h2h_redcards <- format_h2h_tab2(h2h_redcards)
 		
 	h2h_all_stats <- abind::abind(h2h_n_meets, h2h_goals, h2h_shots, 
-		h2h_shotsontarget, h2h_fouls, h2h_yellowcards, h2h_redcards)
+		h2h_shotsontarget, h2h_corners, h2h_fouls, h2h_yellowcards, 
+		h2h_redcards)
 	dimnames(h2h_all_stats) <- list(
 		HomeTeam 	= dimnames(h2h_all_stats)[[1]],
 		AwayTeam 	= dimnames(h2h_all_stats)[[2]],

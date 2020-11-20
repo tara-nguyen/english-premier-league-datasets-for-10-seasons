@@ -40,4 +40,4 @@ Included at the end of [`epldat10seasons_DataWrangling.R`](epldat10seasons_DataW
 
 ## Usage Note
 
-You are free to use any of the materials in this repo. **If you do use it, please do not forget to give credit (e.g. by mentioning the repo or giving a url link to it).**
+You are free to use any of the materials in this repo. **If you do use any, please remember to give credit (e.g. by mentioning either my name or the repo, by giving a url link to it, etc.).**

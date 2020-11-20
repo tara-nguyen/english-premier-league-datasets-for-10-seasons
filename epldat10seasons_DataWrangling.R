@@ -110,15 +110,15 @@ points_byteam_byseason <- wins_byteam_byseason * 3 + draws_byteam_byseason
 get_league_tab <- function(season) {
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
 	tab <- tibble::tibble(
-		Club				= teams,
-		Matches			= (n_teams-1)*2,
-		Wins				= wins_byteam_byseason[teams, season],
-		Draws			= draws_byteam_byseason[teams, season],
-		Losses			= losses_byteam_byseason[teams, season],
-		GoalsScored		= goalsscored_byteam_byseason[teams, season],
-		GoalsConceded	= goalsconceded_byteam_byseason[teams, season],
-		GoalDiff 		= goaldiff_byteam_byseason[teams, season],
-		Points			= points_byteam_byseason[teams, season])
+		Club	          = teams,
+		Matches       = (n_teams-1)*2,
+		Wins          = wins_byteam_byseason[teams, season],
+		Draws         = draws_byteam_byseason[teams, season],
+		Losses        = losses_byteam_byseason[teams, season],
+		GoalsScored   = goalsscored_byteam_byseason[teams, season],
+		GoalsConceded = goalsconceded_byteam_byseason[teams, season],
+		GoalDiff      = goaldiff_byteam_byseason[teams, season],
+		Points        = points_byteam_byseason[teams, season])
 	tab <- tab[order(tab$Points, tab$GoalDiff, tab$GoalsScored, 
 		decreasing=T),]
 	tab$Position <- rownames(tab)
@@ -149,14 +149,15 @@ epl1920tab <- get_league_tab(seasons[10])
 
 get_matchday_tab1 <- function(season) {
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
+	seasonstats <- subset(epldat, Season == season, 
+		select = c(Date, HomeTeam, AwayTeam, FullTime))
 	
 	## contigency tables
 	
-	seasonstats <- subset(epldat, Season == season, 
-		select = c(Date, HomeTeam, AwayTeam, FullTime))
 	hometeam_bydate <- xtabs(~ Date + HomeTeam, seasonstats)[, teams]
 	awayteam_bydate <- xtabs(~ Date + AwayTeam, seasonstats)[, teams]
 	whoplayed_bydate <- hometeam_bydate + awayteam_bydate
+	
 	wins_bydate_byhometeam <- xtabs(~ Date + HomeTeam + FullTime, 	
 		seasonstats)[, teams, 'HomeWin']
 	draws_bydate_byhometeam <- xtabs(~ Date + HomeTeam + FullTime, 	
@@ -212,15 +213,16 @@ get_matchday_tab1 <- function(season) {
 
 get_matchday_tab2 <- function(season) {
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
-	
-	## contigency tables
-	
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals,
 			HomeShots, AwayShots, HomeShotsOnTarget, AwayShotsOnTarget))
+	
+	## contigency tables
+	
 	hometeam_bydate <- xtabs(~ Date + HomeTeam, seasonstats)[, teams]
 	awayteam_bydate <- xtabs(~ Date + AwayTeam, seasonstats)[, teams]
 	whoplayed_bydate <- hometeam_bydate + awayteam_bydate
+	
 	goals_bydate_byhometeam <- xtabs(
 		cbind(HomeGoals, AwayGoals) ~ Date + HomeTeam, seasonstats)[,teams,]
 	goals_bydate_byawayteam <- xtabs(
@@ -231,6 +233,7 @@ get_matchday_tab2 <- function(season) {
 	goalsconceded_bydate_byteam <- goals_bydate_byhometeam[,, 'AwayGoals'] +
 		goals_bydate_byawayteam[,, 'HomeGoals']
 	goalsconceded_bydate_byteam[which(whoplayed_bydate == 0)] <- NA
+	
 	shots_bydate_byhometeam <- xtabs(
 		cbind(HomeShots, AwayShots) ~ Date + HomeTeam, seasonstats)[,teams,]
 	shots_bydate_byawayteam <- xtabs(

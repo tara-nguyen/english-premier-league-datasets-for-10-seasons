@@ -1,18 +1,22 @@
 ## Data Wrangling of English Premier League Data From Season 2010/11 to Season 2019/20
+##
 ## AUTHOR: TARA NGUYEN
 ## Completed in November 2020
 
 ########## DATA IMPORT AND CLEANING ##########
 
+n_teams <- 20
+n_games_per_season <- n_teams * (n_teams - 1)
+
 season_years <- seq(1011, 1920, 101)
 filepaths <- paste0('https://www.football-data.co.uk/mmz4281/', 
 	season_years, '/E0.csv')
-n_teams <- 20
-n_games_per_season <- n_teams * (n_teams - 1)
+
 epldat <- data.frame()   ## empty data frame
 colnames <- c('Date', 'Referee', 'HomeTeam', 'AwayTeam', 'FTR', 'HTR',
 	'FTHG', 'HTHG', 'HS', 'HST', 'HC', 'HF', 'HY', 'HR',
 	'FTAG', 'HTAG', 'AS', 'AST', 'AC', 'AF', 'AY', 'AR')
+
 for (filepath in filepaths) {
 	epldat_temp <- readr::read_csv(filepath)
 	epldat_temp <- epldat_temp[1:n_games_per_season, colnames]
@@ -41,7 +45,7 @@ newDate <- gsub('/20([^\\$])','/\\1', as.character(epldat$Date))
 epldat$Date <- as.Date(newDate, '%d/%m/%y')
 str(epldat$Date)
 
-## change factor levels
+## change factor labels of FullTime and of HalfTime
 
 epldat$FullTime <- factor(epldat$FullTime, levels = c('H', 'D', 'A'),
 	labels = c('HomeWin', 'Draw', 'AwayWin'))
@@ -49,12 +53,6 @@ str(epldat$FullTime)
 epldat$Halftime <- factor(epldat$Halftime, levels = c('H', 'D', 'A'),
 	labels = c('HomeWin', 'Draw', 'AwayWin'))
 str(epldat$Halftime)
-
-## make Season a factored variables
-
-epldat$Season <- factor(epldat$Season)
-str(epldat$Season)
-seasons <- levels(epldat$Season)
 
 ## make team names shorter
 

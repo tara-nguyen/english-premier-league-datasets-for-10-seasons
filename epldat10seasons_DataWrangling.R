@@ -4,11 +4,11 @@
 
 ########## DATA IMPORT AND CLEANING ##########
 
-seasons <- seq(1011, 1920, 101)
+season_years <- seq(1011, 1920, 101)
 filepaths <- paste0('https://www.football-data.co.uk/mmz4281/', 
-	seasons, '/E0.csv')
+	season_years, '/E0.csv')
 n_teams <- 20
-n_games_per_season <- n_teams * (n_teams-1)
+n_games_per_season <- n_teams * (n_teams - 1)
 epldat <- data.frame()   ## empty data frame
 colnames <- c('Date', 'Referee', 'HomeTeam', 'AwayTeam', 'FTR', 'HTR',
 	'FTHG', 'HTHG', 'HS', 'HST', 'HC', 'HF', 'HY', 'HR',
@@ -24,8 +24,8 @@ summary(epldat)
 
 ## add Season column and rename columns
 
-epldat$Season <- rep(paste0('20', substr(seasons, 1, 2), '/',
-	substr(seasons, 3, 4)), each = n_games_per_season)
+epldat$Season <- rep(paste0('20', substr(season_years, 1, 2), '/',
+	substr(season_years, 3, 4)), each = n_games_per_season)
 ncol <- ncol(epldat)
 colnames[5:ncol] <- c('FullTime', 'Halftime', 'HomeGoals',
 	'HomeGoalsHalfTime', 'HomeShots', 'HomeShotsOnTarget', 'HomeCorners',
@@ -70,10 +70,14 @@ names(epldat)
 epldat <- epldat[, c(ncol, 1:(ncol-1))]
 names(epldat)
 
-## save new dataset to a csv file
+## function for saving new datasets to csv files
 
-write.csv(epldat, row.names=F,
-	file = 'epldat10seasons/epl-allseasons-matchstats.csv')	
+save_to_csv <- function(data, rownames = F, filename) {
+	write.csv(data, row.names = rownames,
+		file = paste0('epldat10seasons/', filename, '.csv'))
+}
+
+save_to_csv(epldat, filename = 'epl-allseasons-matchstats')
 		
 ##### CREATE NEW DATASETS BASED ON epldat #####
 
@@ -107,7 +111,8 @@ points_byteam_byseason <- wins_byteam_byseason * 3 + draws_byteam_byseason
 
 ## league tables
 
-get_league_tab <- function(season) {
+get_league_tab <- function(season_index) {
+	season <- seasons[season_index]
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
 	tab <- tibble::tibble(
 		Club	          = teams,
@@ -126,28 +131,28 @@ get_league_tab <- function(season) {
 	tab <- tab[, c(ncol, 1:(ncol-1))]   ## rearrange columns
 	
 	## save new dataset to a csv file
-
-	write.csv(tab, row.names=F,
-		file = paste0('epldat10seasons/epl', 
-			gsub('20([0-9]{2})/','\\1', season), 'leaguetable.csv'))
+	
+	save_to_csv(tab, 
+		filename = paste0('epl', season_years[season_index], 'leaguetable'))
 	
 	return(tab)
 }
 
-epl1011tab <- get_league_tab(seasons[1])
-epl1112tab <- get_league_tab(seasons[2])
-epl1213tab <- get_league_tab(seasons[3])
-epl1314tab <- get_league_tab(seasons[4])
-epl1415tab <- get_league_tab(seasons[5])
-epl1516tab <- get_league_tab(seasons[6])
-epl1617tab <- get_league_tab(seasons[7])
-epl1718tab <- get_league_tab(seasons[8])
-epl1819tab <- get_league_tab(seasons[9])
-epl1920tab <- get_league_tab(seasons[10])
+epl1011tab <- get_league_tab(1)
+epl1112tab <- get_league_tab(2)
+epl1213tab <- get_league_tab(3)
+epl1314tab <- get_league_tab(4)
+epl1415tab <- get_league_tab(5)
+epl1516tab <- get_league_tab(6)
+epl1617tab <- get_league_tab(7)
+epl1718tab <- get_league_tab(8)
+epl1819tab <- get_league_tab(9)
+epl1920tab <- get_league_tab(10)
 
 ### MATCHDAY TABLES ###
 
-get_matchday_tab1 <- function(season) {
+get_matchday_tab1 <- function(season_index) {
+	season <- seasons[season_index]
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, FullTime))
@@ -202,16 +207,15 @@ get_matchday_tab1 <- function(season) {
 		paste0('M', n_games_per_team, 'Points'))
 	
 	## save new dataset to a csv file
-
-	write.csv(tab, row.names=F,
-		file = paste0('epldat10seasons/epl', 
-			gsub('20([0-9]{2})/','\\1', season), 
-			'matchday-results-pts.csv'))	
 	
+	save_to_csv(tab, filename = paste0('epl', season_years[season_index], 
+		'matchday-results-pts'))
+
 	return(tab)
 }
 
-get_matchday_tab2 <- function(season) {
+get_matchday_tab2 <- function(season_index) {
+	season <- seasons[season_index]
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals,
@@ -280,36 +284,34 @@ get_matchday_tab2 <- function(season) {
 		paste0('M', n_games_per_team, 'ShotsOnTarget'))
 	
 	## save new dataset to a csv file
-
-	write.csv(tab, row.names=F,
-		file = paste0('epldat10seasons/epl', 
-			gsub('20([0-9]{2})/','\\1', season), 
-			'matchday-goals-shots.csv'))	
 	
+	save_to_csv(tab, filename = paste0('epl', season_years[season_index], 
+		'matchday-goals-shots'))
+
 	return(tab)
 }
 
-epl1011matchdaystats1 <- get_matchday_tab1(seasons[1])
-epl1112matchdaystats1 <- get_matchday_tab1(seasons[2])
-epl1213matchdaystats1 <- get_matchday_tab1(seasons[3])
-epl1314matchdaystats1 <- get_matchday_tab1(seasons[4])
-epl1415matchdaystats1 <- get_matchday_tab1(seasons[5])
-epl1516matchdaystats1 <- get_matchday_tab1(seasons[6])
-epl1617matchdaystats1 <- get_matchday_tab1(seasons[7])
-epl1718matchdaystats1 <- get_matchday_tab1(seasons[8])
-epl1819matchdaystats1 <- get_matchday_tab1(seasons[9])
-epl1920matchdaystats1 <- get_matchday_tab1(seasons[10])
+epl1011matchdaystats1 <- get_matchday_tab1(1)
+epl1112matchdaystats1 <- get_matchday_tab1(2)
+epl1213matchdaystats1 <- get_matchday_tab1(3)
+epl1314matchdaystats1 <- get_matchday_tab1(4)
+epl1415matchdaystats1 <- get_matchday_tab1(5)
+epl1516matchdaystats1 <- get_matchday_tab1(6)
+epl1617matchdaystats1 <- get_matchday_tab1(7)
+epl1718matchdaystats1 <- get_matchday_tab1(8)
+epl1819matchdaystats1 <- get_matchday_tab1(9)
+epl1920matchdaystats1 <- get_matchday_tab1(10)
 
-epl1011matchdaystats2 <- get_matchday_tab2(seasons[1])
-epl1112matchdaystats2 <- get_matchday_tab2(seasons[2])
-epl1213matchdaystats2 <- get_matchday_tab2(seasons[3])
-epl1314matchdaystats2 <- get_matchday_tab2(seasons[4])
-epl1415matchdaystats2 <- get_matchday_tab2(seasons[5])
-epl1516matchdaystats2 <- get_matchday_tab2(seasons[6])
-epl1617matchdaystats2 <- get_matchday_tab2(seasons[7])
-epl1718matchdaystats2 <- get_matchday_tab2(seasons[8])
-epl1819matchdaystats2 <- get_matchday_tab2(seasons[9])
-epl1920matchdaystats2 <- get_matchday_tab2(seasons[10])
+epl1011matchdaystats2 <- get_matchday_tab2(1)
+epl1112matchdaystats2 <- get_matchday_tab2(2)
+epl1213matchdaystats2 <- get_matchday_tab2(3)
+epl1314matchdaystats2 <- get_matchday_tab2(4)
+epl1415matchdaystats2 <- get_matchday_tab2(5)
+epl1516matchdaystats2 <- get_matchday_tab2(6)
+epl1617matchdaystats2 <- get_matchday_tab2(7)
+epl1718matchdaystats2 <- get_matchday_tab2(8)
+epl1819matchdaystats2 <- get_matchday_tab2(9)
+epl1920matchdaystats2 <- get_matchday_tab2(10)
 
 ### HEAD-TO-HEAD TABLES ###
 
@@ -381,16 +383,16 @@ epl_allseasons_h2h <- get_h2h_tab(epldat)
 
 ## save new datasets to csv files
 
-statsname <- tolower(dimnames(epl_allseasons_h2h)[[3]])
-for (i in 1:length(statsname)) {
-	write.csv(epl_allseasons_h2h[,, i], 
-		file = paste0('epldat10seasons/epl-allseasons-head2head-',
-			statsname[i], '.csv'))	
+statsnames <- tolower(dimnames(epl_allseasons_h2h)[[3]])
+for (i in 1:length(statsnames)) {
+	save_to_csv(epl_allseasons_h2h[,, i], rownames = T,
+		filename = paste0('epl-allseasons-head2head-', statsnames[i]))
 }
 
 ## stats for each season
 
-get_h2h_tab_byseason <- function(season) {
+get_h2h_tab_byseason <- function(season_index) {
+	season <- seasons[season_index]
 	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
 	seasonstats <- subset(epldat, Season == season)
 	h2h_stats <- get_h2h_tab(seasonstats)
@@ -398,13 +400,12 @@ get_h2h_tab_byseason <- function(season) {
 
 ## (optional) save new datasets to csv files
 
-# for (season in seasons) {
-# 	h2h_seasonstats <- get_h2h_tab_byseason(season)
-# 	statsname <- dimnames(h2h_seasonstats)[[3]]
-# 	for (i in 1:length(statsname)) {
-# 		write.csv(head2head_allseasons[i], 
-# 			file = paste0('epldat10seasons/epl', 
-# 				gsub('20([0-9]{2})/','\\1', season), '-head2head-'
-# 				statsname[i], '.csv'))	
+# for (season_index in 1:length(seasons)) {
+# 	h2h_seasonstats <- get_h2h_tab_byseason(season_index)
+# 	statsnames <- dimnames(h2h_seasonstats)[[3]]
+# 	for (i in 1:length(statsnames)) {
+#		save_to_csv(h2h_seasonstats[i], rownames = T,
+#			filename = paste0('epldat10seasons/epl', 
+#				season_years[season_index], '-head2head-', statsnames[i]))
 # 	}	
 # }

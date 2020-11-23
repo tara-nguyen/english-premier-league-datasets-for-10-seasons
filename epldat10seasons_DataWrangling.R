@@ -1,4 +1,4 @@
-## Data Wrangling of English Premier League Data From Season 2010/11 to Season 2019/20
+## Data wrangling of English Premier League data from Season 2010/11 to Season 2019/20
 ##
 ## AUTHOR: TARA NGUYEN
 ## Completed in November 2020
@@ -24,28 +24,23 @@ for (filepath in filepaths) {
 }
 summary(epldat)
 
-########## DATA TRANSFORMATION ##########
+## rename columns
 
-## add Season column and rename columns
-
-epldat$Season <- rep(paste0('20', substr(season_years, 1, 2), '/',
-	substr(season_years, 3, 4)), each = n_games_per_season)
 ncol <- ncol(epldat)
-colnames[5:ncol] <- c('FullTime', 'Halftime', 'HomeGoals',
+colnames(epldat)[5:ncol] <- c('FullTime', 'Halftime', 'HomeGoals',
 	'HomeGoalsHalfTime', 'HomeShots', 'HomeShotsOnTarget', 'HomeCorners',
 	'HomeFouls', 'HomeYellowCards', 'HomeRedCards', 'AwayGoals',
 	'AwayGoalsHalfTime', 'AwayShots', 'AwayShotsOnTarget', 'AwayCorners',
-	'AwayFouls', 'AwayYellowCards', 'AwayRedCards', 'Season')
-colnames(epldat) <- colnames
+	'AwayFouls', 'AwayYellowCards', 'AwayRedCards')
+names(epldat) <- colnames
+	
+## turn dates into the form yyyy-mm-dd
 
-## convert elements in Date to Date objects
-## Date currently written in dd-mm-yy format
-
-newDate <- gsub('/20([^\\$])','/\\1', as.character(epldat$Date))
+newDate <- gsub('/20([^$])','/\\1', as.character(epldat$Date))
 epldat$Date <- as.Date(newDate, '%d/%m/%y')
 str(epldat$Date)
 
-## change factor labels of FullTime and of HalfTime
+## change factor labels of FullTime and of Halftime
 
 epldat$FullTime <- factor(epldat$FullTime, levels = c('H', 'D', 'A'),
 	labels = c('HomeWin', 'Draw', 'AwayWin'))
@@ -54,19 +49,28 @@ epldat$Halftime <- factor(epldat$Halftime, levels = c('H', 'D', 'A'),
 	labels = c('HomeWin', 'Draw', 'AwayWin'))
 str(epldat$Halftime)
 
-## make team names shorter
+## shorten team names
 
 epldat$HomeTeam <- factor(gsub('United', 'Utd', epldat$HomeTeam))
 levels(epldat$HomeTeam)
 epldat$AwayTeam <- factor(gsub('United', 'Utd', epldat$AwayTeam))
 levels(epldat$AwayTeam)
 
+########## DATA TRANSFORMATION ##########
+
+## add Season column
+
+epldat$Season <- rep(paste0('20', substr(season_years, 1, 2), '/',
+	substr(season_years, 3, 4)), each = n_games_per_season)
+
 ## rearrange columns - all numeric factors at the end
 
+ncol <- ncol(epldat)
 str(epldat)
 names(epldat)
 epldat <- epldat[, c(ncol, 1:(ncol-1))]
-names(epldat)
+colnames <- names(epldat)
+colnames
 
 ## function for saving new datasets to csv files
 
@@ -111,7 +115,7 @@ points_byteam_byseason <- wins_byteam_byseason * 3 + draws_byteam_byseason
 
 get_league_tab <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
+	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
 	tab <- tibble::tibble(
 		Club	          = teams,
 		Matches       = (n_teams-1)*2,
@@ -151,7 +155,7 @@ epl1920tab <- get_league_tab(10)
 
 get_matchday_tab1 <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
+	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, FullTime))
 	
@@ -175,7 +179,7 @@ get_matchday_tab1 <- function(season_index) {
 	## result table
 	
 	results_bydate_byteam <- whoplayed_bydate
-	indices <- which(whoplayed_bydate == 1)
+	indices <- whoplayed_bydate == 1
 	results_bydate_byteam[indices] <- 
 		ifelse(wins_bydate_byhometeam[indices] == 1, 'HomeW',
 			ifelse(draws_bydate_byhometeam[indices] == 1, 'HomeD',
@@ -183,14 +187,14 @@ get_matchday_tab1 <- function(season_index) {
 					ifelse(wins_bydate_byawayteam[indices] == 1,'AwayW',
 						ifelse(draws_bydate_byawayteam[indices] == 1,
 							'AwayD', 'AwayL')))))
-	results_bydate_byteam[which(whoplayed_bydate == 0)] <- 'NotPlayed'
+	results_bydate_byteam[whoplayed_bydate == 0] <- 'NotPlayed'
 		
 	## matchday table
 	
 	tab <- c()
 	for (team in teams) {
 		team_results <- as.vector(results_bydate_byteam[, team])
-		team_results <- team_results[which(team_results != 'NotPlayed')]
+		team_results <- team_results[team_results != 'NotPlayed']
 		team_points <- sapply(team_results, function(x) {
 			ifelse(x == 'HomeW' | x == 'AwayW', 3,
 				ifelse(x == 'HomeD' | x == 'AwayD', 1, 0))
@@ -214,7 +218,7 @@ get_matchday_tab1 <- function(season_index) {
 
 get_matchday_tab2 <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
+	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals,
 			HomeShots, AwayShots, HomeShotsOnTarget, AwayShotsOnTarget))
@@ -231,10 +235,10 @@ get_matchday_tab2 <- function(season_index) {
 		cbind(HomeGoals, AwayGoals) ~ Date + AwayTeam, seasonstats)[,teams,]
 	goalsscored_bydate_byteam <- goals_bydate_byhometeam[,, 'HomeGoals'] +
 		goals_bydate_byawayteam[,, 'AwayGoals']
-	goalsscored_bydate_byteam[which(whoplayed_bydate == 0)] <- NA
+	goalsscored_bydate_byteam[whoplayed_bydate == 0] <- NA
 	goalsconceded_bydate_byteam <- goals_bydate_byhometeam[,, 'AwayGoals'] +
 		goals_bydate_byawayteam[,, 'HomeGoals']
-	goalsconceded_bydate_byteam[which(whoplayed_bydate == 0)] <- NA
+	goalsconceded_bydate_byteam[whoplayed_bydate == 0] <- NA
 	
 	shots_bydate_byhometeam <- xtabs(
 		cbind(HomeShots, AwayShots) ~ Date + HomeTeam, seasonstats)[,teams,]
@@ -242,7 +246,7 @@ get_matchday_tab2 <- function(season_index) {
 		cbind(HomeShots, AwayShots) ~ Date + AwayTeam, seasonstats)[,teams,]
 	shots_bydate_byteam <- shots_bydate_byhometeam[,, 'HomeShots'] +
 		shots_bydate_byawayteam[,, 'AwayShots']
-	shots_bydate_byteam[which(whoplayed_bydate == 0)] <- NA
+	shots_bydate_byteam[whoplayed_bydate == 0] <- NA
 	shotsontarget_bydate_byhometeam <- xtabs(
 		cbind(HomeShotsOnTarget, AwayShotsOnTarget) ~ Date + HomeTeam, 
 		seasonstats)[,teams,]
@@ -252,7 +256,7 @@ get_matchday_tab2 <- function(season_index) {
 	shotsontarget_bydate_byteam <- 
 		shotsontarget_bydate_byhometeam[,, 'HomeShotsOnTarget'] +
 		shotsontarget_bydate_byawayteam[,, 'AwayShotsOnTarget']
-	shotsontarget_bydate_byteam[which(whoplayed_bydate == 0)] <- NA
+	shotsontarget_bydate_byteam[whoplayed_bydate == 0] <- NA
 		
 	## matchday table
 	
@@ -391,7 +395,7 @@ for (i in 1:length(statsnames)) {
 
 get_h2h_tab_byseason <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[which(teams_byseason[,season]>0), season])
+	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
 	seasonstats <- subset(epldat, Season == season)
 	h2h_stats <- get_h2h_tab(seasonstats)
 }

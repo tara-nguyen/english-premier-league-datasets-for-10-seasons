@@ -28,11 +28,11 @@ summary(epldat)
 
 ncol <- ncol(epldat)
 colnames(epldat)[5:ncol] <- c('FullTime', 'Halftime', 'HomeGoals',
-	'HomeGoalsHalfTime', 'HomeShots', 'HomeShotsOnTarget', 'HomeCorners',
+	'HomeGoalsHalftime', 'HomeShots', 'HomeShotsOnTarget', 'HomeCorners',
 	'HomeFouls', 'HomeYellowCards', 'HomeRedCards', 'AwayGoals',
-	'AwayGoalsHalfTime', 'AwayShots', 'AwayShotsOnTarget', 'AwayCorners',
+	'AwayGoalsHalftime', 'AwayShots', 'AwayShotsOnTarget', 'AwayCorners',
 	'AwayFouls', 'AwayYellowCards', 'AwayRedCards')
-names(epldat) <- colnames
+colnames(epldat)
 	
 ## turn dates into the form yyyy-mm-dd
 
@@ -49,26 +49,20 @@ epldat$Halftime <- factor(epldat$Halftime, levels = c('H', 'D', 'A'),
 	labels = c('HomeWin', 'Draw', 'AwayWin'))
 str(epldat$Halftime)
 
-## shorten team names
-
-epldat$HomeTeam <- factor(gsub('United', 'Utd', epldat$HomeTeam))
-levels(epldat$HomeTeam)
-epldat$AwayTeam <- factor(gsub('United', 'Utd', epldat$AwayTeam))
-levels(epldat$AwayTeam)
-
 ########## DATA TRANSFORMATION ##########
 
 ## add Season column
 
 epldat$Season <- rep(paste0('20', substr(season_years, 1, 2), '/',
 	substr(season_years, 3, 4)), each = n_games_per_season)
+seasons <- unique(epldat$Season)
 
 ## rearrange columns - all numeric factors at the end
 
 ncol <- ncol(epldat)
 str(epldat)
 names(epldat)
-epldat <- epldat[, c(ncol, 1:(ncol-1))]
+epldat <- subset(epldat, select = c(Season, Date:AwayRedCards))
 colnames <- names(epldat)
 colnames
 
@@ -91,21 +85,21 @@ teams_byseason <- table(epldat$HomeTeam, epldat$Season)
 
 results_byhometeam_byseason <- xtabs(~ HomeTeam + FullTime + Season, epldat)
 results_byawayteam_byseason <- xtabs(~ AwayTeam + FullTime + Season, epldat)
-wins_byteam_byseason <- results_byhometeam_byseason[,'HomeWin',] +
-	results_byawayteam_byseason[,'AwayWin',]
-draws_byteam_byseason <- results_byhometeam_byseason[,'Draw',] +
-	results_byawayteam_byseason[,'Draw',]
-losses_byteam_byseason <- results_byhometeam_byseason[,'AwayWin',] +
-	results_byawayteam_byseason[,'HomeWin',]
+wins_byteam_byseason <- results_byhometeam_byseason[, 'HomeWin', ] +
+	results_byawayteam_byseason[, 'AwayWin', ]
+draws_byteam_byseason <- results_byhometeam_byseason[, 'Draw', ] +
+	results_byawayteam_byseason[, 'Draw', ]
+losses_byteam_byseason <- results_byhometeam_byseason[, 'AwayWin', ] +
+	results_byawayteam_byseason[, 'HomeWin', ]
 
 goals_byhometeam_byseason <- xtabs(
 	cbind(HomeGoals, AwayGoals) ~ HomeTeam + Season, epldat)
 goals_byawayteam_byseason <- xtabs(
 	cbind(HomeGoals, AwayGoals) ~ AwayTeam + Season, epldat)
-goalsscored_byteam_byseason <- goals_byhometeam_byseason[,,'HomeGoals'] +
-	goals_byawayteam_byseason[,,'AwayGoals']
-goalsconceded_byteam_byseason <- goals_byhometeam_byseason[,,'AwayGoals'] +
-	goals_byawayteam_byseason[,,'HomeGoals']
+goalsscored_byteam_byseason <- goals_byhometeam_byseason[,, 'HomeGoals'] +
+	goals_byawayteam_byseason[,, 'AwayGoals']
+goalsconceded_byteam_byseason <- goals_byhometeam_byseason[,, 'AwayGoals'] +
+	goals_byawayteam_byseason[,, 'HomeGoals']
 goaldiff_byteam_byseason <- goalsscored_byteam_byseason -
 	goalsconceded_byteam_byseason
 	
@@ -115,10 +109,10 @@ points_byteam_byseason <- wins_byteam_byseason * 3 + draws_byteam_byseason
 
 get_league_tab <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
+	teams <- names(teams_byseason[teams_byseason[, season] > 0, season])
 	tab <- tibble::tibble(
 		Club	          = teams,
-		Matches       = (n_teams-1)*2,
+		Matches       = (n_teams-1) * 2,
 		Wins          = wins_byteam_byseason[teams, season],
 		Draws         = draws_byteam_byseason[teams, season],
 		Losses        = losses_byteam_byseason[teams, season],
@@ -127,7 +121,7 @@ get_league_tab <- function(season_index) {
 		GoalDiff      = goaldiff_byteam_byseason[teams, season],
 		Points        = points_byteam_byseason[teams, season])
 	tab <- tab[order(tab$Points, tab$GoalDiff, tab$GoalsScored, 
-		decreasing=T),]
+		decreasing=T), ]
 	tab$Position <- rownames(tab)
 	ncol <- ncol(tab)
 	tab <- tab[, c(ncol, 1:(ncol-1))]   ## rearrange columns
@@ -155,7 +149,7 @@ epl1920tab <- get_league_tab(10)
 
 get_matchday_tab1 <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
+	teams <- names(teams_byseason[teams_byseason[, season] > 0, season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, FullTime))
 	
@@ -203,7 +197,7 @@ get_matchday_tab1 <- function(season_index) {
 		tab <- rbind(tab, team_performance)
 	}
 	tab <- tibble::as_tibble(tab)
-	n_games_per_team <- 1:((n_teams-1)*2)
+	n_games_per_team <- 1 : ((n_teams - 1) * 2)
 	colnames(tab) <- c('Club', 
 		paste0('M', n_games_per_team, 'Results'),
 		paste0('M', n_games_per_team, 'Points'))
@@ -218,7 +212,7 @@ get_matchday_tab1 <- function(season_index) {
 
 get_matchday_tab2 <- function(season_index) {
 	season <- seasons[season_index]
-	teams <- names(teams_byseason[teams_byseason[,season]>0, season])
+	teams <- names(teams_byseason[teams_byseason[, season] > 0, season])
 	seasonstats <- subset(epldat, Season == season, 
 		select = c(Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals,
 			HomeShots, AwayShots, HomeShotsOnTarget, AwayShotsOnTarget))

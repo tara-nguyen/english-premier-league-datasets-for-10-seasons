@@ -5,8 +5,8 @@
 
 ########## DATA IMPORT AND CLEANING ##########
 
-n_teams <- 20
-n_games_per_season <- n_teams * (n_teams - 1)
+n_teams_per_season <- 20
+n_games_per_season <- n_teams_per_season * (n_teams_per_season - 1)
 
 season_years <- seq(1011, 1920, 101)
 filepaths <- paste0('https://www.football-data.co.uk/mmz4281/', 
@@ -111,8 +111,8 @@ get_league_tab <- function(season_index) {
 	season <- seasons[season_index]
 	teams <- names(teams_byseason[teams_byseason[, season] > 0, season])
 	tab <- tibble::tibble(
-		Club	          = teams,
-		Matches       = (n_teams-1) * 2,
+		Club	      = teams,
+		Matches       = (n_teams_per_season - 1) * 2,
 		Wins          = wins_byteam_byseason[teams, season],
 		Draws         = draws_byteam_byseason[teams, season],
 		Losses        = losses_byteam_byseason[teams, season],
@@ -197,7 +197,7 @@ get_matchday_tab1 <- function(season_index) {
 		tab <- rbind(tab, team_performance)
 	}
 	tab <- tibble::as_tibble(tab)
-	n_games_per_team <- 1 : ((n_teams - 1) * 2)
+	n_games_per_team <- 1 : ((n_teams_per_season - 1) * 2)
 	colnames(tab) <- c('Club', 
 		paste0('M', n_games_per_team, 'Results'),
 		paste0('M', n_games_per_team, 'Points'))
@@ -258,21 +258,26 @@ get_matchday_tab2 <- function(season_index) {
 	for (team in teams) {
 		team_goalsscored <- as.vector(goalsscored_bydate_byteam[, team])
 		team_goalsscored <- team_goalsscored[!is.na(team_goalsscored)]
+		
 		team_goalsconceded <- as.vector(goalsconceded_bydate_byteam[, team])
 		team_goalsconceded <- team_goalsconceded[!is.na(team_goalsconceded)]
+		
 		team_shots <- as.vector(shots_bydate_byteam[, team])
 		team_shots <- team_shots[!is.na(team_shots)]
+		
 		team_shotsontarget <- as.vector(shotsontarget_bydate_byteam[, team])
 		team_shotsontarget <- team_shotsontarget[!is.na(team_shotsontarget)]
+		
 		team_performance <- c(team_goalsscored, team_goalsconceded,
 			team_shots, team_shotsontarget)
+		
 		tab <- rbind(tab, team_performance)
 	}
 	tab <- tibble::as_tibble(tab)
 	tab$Club <- teams
 	ncol <- ncol(tab)
 	tab <- tab[, c(ncol, 1:(ncol-1))]   ## rearrange columns
-	n_games_per_team <- 1:((n_teams-1)*2)
+	n_games_per_team <- 1 : ((n_teams_per_season - 1) * 2)
 	colnames(tab) <- c('Club', 
 		paste0('M', n_games_per_team, 'GoalsScored'),
 		paste0('M', n_games_per_team, 'GoalsConceded'),

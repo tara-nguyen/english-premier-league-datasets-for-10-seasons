@@ -1,6 +1,6 @@
 # English Premier League Data
 
-AUTHOR: [**TARA NGUYEN**](https://www.linkedin.com/in/nguyenthuyanh/)
+AUTHOR: [**TARA NGUYEN**](https://www.linkedin.com/in/taranguyen264/)
 
 ## Background
 
